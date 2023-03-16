@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatBot</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      #chatBox {
+        width: 350px;
+        height: 500px;
+        background-color: white;
+        border-radius: 5px;
+        padding: 15px;
+        overflow-y: scroll;
+      }
+
+      form {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+      }
+
+      #inputField {
+        width: 300px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      #sendButton {
+        margin-left: 10px;
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      #sendButton:hover {
+        background-color: #0056b3;
+      }
+
+      .message-container {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+      }
+
+      .message-text {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 5px;
+        margin: 0;
+      }
+
+      .user {
+        background-color: #007bff;
+        color: white;
+        align-self: flex-end;
+      }
+
+      .bot {
+        background-color: #e5e5ea;
+        color: black;
+      }
+
+      .timestamp {
+        font-size: 0.8em;
+        color: #999;
+        margin-top: 2px;
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chatBox"></div>
+    <form>
+      <input id="inputField" type="text" />
+      <button id="sendButton" type="button">Send</button>
+    </form>
+  </body>
+  <script
+    src="https://cdn.socket.io/4.5.4/socket.io.min.js"
+    integrity="sha384-/KNQL8Nu5gCHLqwqfQjA689Hhoqgi2S84SNUxC3roTe4EhJ9AfLkp8QiQcU8AMzI"
+    crossorigin="anonymous"
+  ></script>
+
+  <script>
+    // Establish a socket connection to the server
+    const socket = io('http://localhost:3000', {
+      transports: ['websocket'],
+    });
+
+    // Query DOM elements
+    const inputField = document.getElementById('inputField');
+    const chatBox = document.getElementById('chatBox');
+
+    // Helper function to append a message to the chat box
+    function appendMessage(message, sender) {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message-text', sender);
+      messageElement.innerHTML = message
+        .split('\n')
+        .map((e) => `<p>${e}</p>`)
+        .join('');
+
+      const timestamp = new Date().toLocaleTimeString(); // create timestamp
+      const timestampElement = document.createElement('span'); // create span element for timestamp
+      timestampElement.classList.add('timestamp');
+      timestampElement.textContent = timestamp;
+
+      const messageContainer = document.createElement('div');
+      messageContainer.classList.add('message-container');
+      messageContainer.appendChild(messageElement);
+      messageContainer.appendChild(timestampElement);
+      chatBox.appendChild(messageContainer);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Handle sending messages
+    function sendMessage() {
+      const message = inputField.value.trim();
+      if (message === '') {
+        return;
+      }
+      appendMessage(message, 'user');
+      socket.emit('user-message', message);
+      inputField.value = '';
+    }
+
+    // Handle receiving messages from the server
+    socket.on('bot-message', (message) => {
+      appendMessage(message, 'bot');
+    });
+
+    // Attach event listeners
+    document.querySelector('form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      sendMessage();
+    });
+
+    document
+      .getElementById('sendButton')
+      .addEventListener('click', sendMessage);
+
+    document
+      .getElementById('inputField')
+      .addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          sendMessage();
+        }
+      });
+  </script>
+</html>
