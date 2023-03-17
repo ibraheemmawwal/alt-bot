@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ChatBot</title>
+    <title>Food ChatBot</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -93,17 +93,12 @@
       <button id="sendButton" type="button">Send</button>
     </form>
   </body>
-  <script
-    src="https://cdn.socket.io/4.5.4/socket.io.min.js"
-    integrity="sha384-/KNQL8Nu5gCHLqwqfQjA689Hhoqgi2S84SNUxC3roTe4EhJ9AfLkp8QiQcU8AMzI"
-    crossorigin="anonymous"
-  ></script>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script>
     // Establish a socket connection to the server
-    const socket = io(`http://localhost:${process.env.PORT || 10000}`, {
-      transports: ['websocket'],
-    });
+
+    const socket = io();
 
     // Query DOM elements
     const inputField = document.getElementById('inputField');
