@@ -101,7 +101,7 @@
 
   <script>
     // Establish a socket connection to the server
-    const socket = io('http://localhost:3000', {
+    const socket = io(`http://localhost:${process.env.PORT || 10000}`, {
       transports: ['websocket'],
     });
 
